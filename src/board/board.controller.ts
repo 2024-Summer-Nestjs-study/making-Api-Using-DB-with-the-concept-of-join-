@@ -10,7 +10,7 @@ export class BoardController {
   async boardWrite(@Body() writeInfo: BoardWriteReqDto) {
     return this.boardService.boardWrite(writeInfo);
   }
-  @Get('readuser')
+  @Get('read')
   async boardReadByUserIndex(@Query() readInfo: BoardReadUserReqDto) {
     return this.boardService.boardReadByUserIndex(readInfo);
   }
