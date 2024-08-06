@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
+import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
 
 @Injectable()
 export class UserService {
@@ -43,8 +44,22 @@ export class UserService {
         index: editInfo.index,
       },
     });
-    if (!user) throw new HttpException('회원 정보 수정 실패', HttpStatus.BAD_REQUEST);
+    if (!user)
+      throw new HttpException('회원 정보 수정 실패', HttpStatus.BAD_REQUEST);
     await this.userEntity.update(user.index, editInfo);
+    return true;
+  }
+  async userWithdraw(withdrawInfo: UserWithdrawDto) {
+    const user = await this.userEntity.findOne({
+      where: {
+        username: withdrawInfo.username,
+        id: withdrawInfo.id,
+        pw: withdrawInfo.pw,
+      },
+    });
+    if (!user)
+      throw new HttpException('회원 정보 삭제 실패', HttpStatus.BAD_REQUEST);
+    await this.userEntity.delete(user);
     return true;
   }
 }
