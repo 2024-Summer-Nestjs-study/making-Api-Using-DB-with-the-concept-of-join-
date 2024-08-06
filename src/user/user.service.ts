@@ -6,12 +6,15 @@ import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
+import { BoardEntity } from '../entity/board.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userEntity: Repository<UserEntity>,
+    @InjectRepository(BoardEntity)
+    private readonly boardEntity: Repository<BoardEntity>,
   ) {}
   async userRegister(userInfo: UserRegisterReqDto) {
     const user = new UserEntity();
@@ -59,6 +62,12 @@ export class UserService {
     });
     if (!user)
       throw new HttpException('회원 정보 삭제 실패', HttpStatus.BAD_REQUEST);
+    const boards = await this.boardEntity
+      .createQueryBuilder('board_entity')
+      .delete()
+      .where('userIndex = :userIndex', { userIndex: user.index })
+      .execute();
+    console.log(boards);
     await this.userEntity.delete(user);
     return true;
   }
