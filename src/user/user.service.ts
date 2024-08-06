@@ -4,6 +4,7 @@ import { UserEntity } from '../../entity/user.entity';
 import { Repository } from 'typeorm';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
+import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 
 @Injectable()
 export class UserService {
@@ -34,5 +35,16 @@ export class UserService {
     });
     if (!user) throw new HttpException('로그인 실패', HttpStatus.BAD_REQUEST);
     return `${user.username}님 로그인 되셨습니다.`;
+  }
+
+  async userEdit(editInfo: UserEditReqDto) {
+    const user = await this.userEntity.findOne({
+      where: {
+        index: editInfo.index,
+      },
+    });
+    if (!user) throw new HttpException('회원 정보 수정 실패', HttpStatus.BAD_REQUEST);
+    await this.userEntity.update(user.index, editInfo);
+    return true;
   }
 }
