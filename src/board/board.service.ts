@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { BoardWriteReqDto } from './dto/req/board.write.req.dto';
 import { UserEntity } from '../entity/user.entity';
 import { BoardReadUserReqDto } from './dto/req/board.read.user.req.dto';
+import { BoardEditReqDto } from './dto/req/board.edit.req.dto';
 
 @Injectable()
 export class BoardService {
@@ -43,5 +44,20 @@ export class BoardService {
     if (!board[0])
       throw new HttpException('게시글이 없습니다.', HttpStatus.NOT_FOUND);
     return board;
+  }
+
+  async boardEdit(editInfo: BoardEditReqDto) {
+    const board = await this.boardEntity.findOne({
+      select: {
+        index: true,
+      },
+      where: {
+        index: editInfo.index,
+      },
+    });
+    if (!board)
+      throw new HttpException('게시글이 없습니다.', HttpStatus.NOT_FOUND);
+    await this.boardEntity.update(board, editInfo);
+    return true;
   }
 }
