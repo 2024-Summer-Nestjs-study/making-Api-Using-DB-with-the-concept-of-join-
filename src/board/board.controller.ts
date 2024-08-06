@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { BoardService } from './board.service';
 import { BoardWriteReqDto } from './dto/req/board.write.req.dto';
 import { BoardReadUserReqDto } from './dto/req/board.read.user.req.dto';
@@ -21,7 +29,7 @@ export class BoardController {
     return this.boardService.boardEdit(editInfo);
   }
   @Delete('delete')
-  async boardDelete(@Query() deleteInfo: BoardDeleteReqDto){
+  async boardDelete(@Query() deleteInfo: BoardDeleteReqDto) {
     return this.boardService.boardDelete(deleteInfo);
   }
 }
