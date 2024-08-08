@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException, ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entity/user.entity';
 import { Repository } from 'typeorm';
@@ -21,10 +26,13 @@ export class UserService {
     user.username = userInfo.username;
     user.id = userInfo.id;
     user.pw = userInfo.pw;
-    if (await this.userEntity.save(user)) {
-      return true;
+    try {
+      await this.userEntity.save(user);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('중복된 아이디가 있습니다.');
+      }
     }
-    return false;
   }
 
   async userLogin(loginInfo: UserLoginReqDto) {
