@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
+import { JwtGuard } from '../jwt/jwt.guard';
 
 @Controller('user')
 export class UserController {
@@ -23,5 +24,10 @@ export class UserController {
   @Delete('withdraw')
   async userWithdraw(@Body() withdrawInfo: UserWithdrawDto) {
     return this.userService.userWithdraw(withdrawInfo);
+  }
+  @UseGuards(JwtGuard)
+  @Post('hi')
+  async hi(@Request() request: Request) {
+    return request['user'];
   }
 }

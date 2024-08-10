@@ -1,5 +1,6 @@
 import {
-  BadRequestException, ConflictException,
+  BadRequestException,
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -12,6 +13,7 @@ import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
 import { BoardEntity } from '../entity/board.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -20,6 +22,7 @@ export class UserService {
     private readonly userEntity: Repository<UserEntity>,
     @InjectRepository(BoardEntity)
     private readonly boardEntity: Repository<BoardEntity>,
+    private jwtService: JwtService,
   ) {}
   async userRegister(userInfo: UserRegisterReqDto) {
     const user = new UserEntity();
@@ -38,6 +41,7 @@ export class UserService {
   async userLogin(loginInfo: UserLoginReqDto) {
     const user = await this.userEntity.findOne({
       select: {
+        index: true,
         username: true,
       },
       where: {
@@ -46,7 +50,21 @@ export class UserService {
       },
     });
     if (!user) throw new HttpException('로그인 실패', HttpStatus.BAD_REQUEST);
-    return `${user.username}님 로그인 되셨습니다.`;
+    const payload = {
+      index: user.index.toString(),
+    };
+    /**access 토큰 및 refresh 토근 발급**/
+    const secretA = 'qwer';
+    const secretR = 'asdf';
+    const refresh = this.jwtService.sign(payload, {
+      secret: secretR,
+      expiresIn: '10m',
+    });
+    const access = this.jwtService.sign(payload, {
+      secret: secretA,
+      expiresIn: '10s',
+    });
+    return [access, refresh];
   }
 
   async userEdit(editInfo: UserEditReqDto) {
