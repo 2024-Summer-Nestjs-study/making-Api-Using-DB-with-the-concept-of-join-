@@ -5,6 +5,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
@@ -26,8 +27,11 @@ export class UserController {
   }
   @UseGuards(JwtGuard)
   @Patch('edit')
-  async userEdit(@Body() editInfo: UserEditReqDto) {
-    return this.userService.userEdit(editInfo);
+  async userEdit(
+    @Body() editInfo: UserEditReqDto,
+    @Request() request: Request,
+  ) {
+    return this.userService.userEdit(editInfo, request);
   }
   @UseGuards(JwtGuard)
   @Delete('withdraw')

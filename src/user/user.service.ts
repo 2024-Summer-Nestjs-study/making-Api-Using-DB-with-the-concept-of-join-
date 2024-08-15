@@ -62,15 +62,16 @@ export class UserService {
     });
     const access = this.jwtService.sign(payload, {
       secret: secretA,
-      expiresIn: '10s',
+      expiresIn: '100s',
     });
     return [access, refresh];
   }
 
-  async userEdit(editInfo: UserEditReqDto) {
+  async userEdit(editInfo: UserEditReqDto, request: Request) {
+    console.log(request['user'].index);
     const user = await this.userEntity.findOne({
       where: {
-        index: editInfo.index,
+        index: request['user'].index,
       },
     });
     if (!user)
