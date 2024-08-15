@@ -23,7 +23,7 @@ export class JwtGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(accessToken, {
         secret: secretA,
       });
-      request['user'] = payload.index;
+      request['user'] = payload;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
         throw new UnauthorizedException('access만료');
