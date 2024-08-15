@@ -1,3 +1,5 @@
 export class UserEditReqDto {
-  index: number;
+  username: string;
+  id: string;
+  pw: string;
 }
