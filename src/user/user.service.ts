@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entity/user.entity';
@@ -96,5 +96,32 @@ export class UserService {
     console.log(boards);
     await this.userEntity.delete(user);
     return true;
+  }
+  async refreshToken(refresh: string) {
+    const secretR = 'asdf';
+    const secretA = 'qwer';
+    /**Refresh Token 검토**/
+    let newpayload;
+    try {
+      const payload = await this.jwtService.verifyAsync(refresh, {
+        secret: secretR,
+      });
+      newpayload = {
+        index: payload.index,
+      };
+    } catch (e) {
+      if (e.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('다시 로그인 하세요');
+      }
+      if (e.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Token이 맞아?');
+      }
+    }
+    /**새로운 Access Token 발행**/
+    const newAccess = this.jwtService.sign(newpayload, {
+      secret: secretA,
+      expiresIn: '100s',
+    });
+    return newAccess;
   }
 }

@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
@@ -17,17 +24,18 @@ export class UserController {
   async userLogin(@Body() loginInfo: UserLoginReqDto) {
     return this.userService.userLogin(loginInfo);
   }
+  @UseGuards(JwtGuard)
   @Patch('edit')
   async userEdit(@Body() editInfo: UserEditReqDto) {
     return this.userService.userEdit(editInfo);
   }
+  @UseGuards(JwtGuard)
   @Delete('withdraw')
   async userWithdraw(@Body() withdrawInfo: UserWithdrawDto) {
     return this.userService.userWithdraw(withdrawInfo);
   }
-  @UseGuards(JwtGuard)
-  @Post('hi')
-  async hi(@Request() request: Request) {
-    return request['user'];
+  @Post('refresh')
+  async refreshToken(@Body('refresh') refresh: string) {
+    return this.userService.refreshToken(refresh);
   }
 }
