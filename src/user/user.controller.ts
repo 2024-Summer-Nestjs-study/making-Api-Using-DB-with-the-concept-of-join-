@@ -11,7 +11,6 @@ import { UserService } from './user.service';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
-import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
 import { JwtGuard } from '../jwt/jwt.guard';
 
 @Controller('user')
@@ -35,8 +34,8 @@ export class UserController {
   }
   @UseGuards(JwtGuard)
   @Delete('withdraw')
-  async userWithdraw(@Body() withdrawInfo: UserWithdrawDto) {
-    return this.userService.userWithdraw(withdrawInfo);
+  async userWithdraw(@Request() request: Request) {
+    return this.userService.userWithdraw(request);
   }
   @Post('refresh')
   async refreshToken(@Body('refresh') refresh: string) {

@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
 import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
-import { UserWithdrawDto } from './dto/req/user.withdraw.dto';
 import { BoardEntity } from '../entity/board.entity';
 import { JwtService } from '@nestjs/jwt';
 
@@ -24,6 +23,7 @@ export class UserService {
     private readonly boardEntity: Repository<BoardEntity>,
     private jwtService: JwtService,
   ) {}
+  /**회원 가입**/
   async userRegister(userInfo: UserRegisterReqDto) {
     const user = new UserEntity();
     user.username = userInfo.username;
@@ -37,8 +37,9 @@ export class UserService {
       }
     }
   }
-
+  /**로그인**/
   async userLogin(loginInfo: UserLoginReqDto) {
+    //중복 체크
     const user = await this.userEntity.findOne({
       select: {
         index: true,
@@ -53,7 +54,7 @@ export class UserService {
     const payload = {
       index: user.index.toString(),
     };
-    /**access 토큰 및 refresh 토근 발급**/
+    //access 토큰 및 refresh 토근 발급
     const secretA = 'qwer';
     const secretR = 'asdf';
     const refresh = this.jwtService.sign(payload, {
@@ -66,7 +67,7 @@ export class UserService {
     });
     return [access, refresh];
   }
-
+  /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
     console.log(request['user'].index);
     const user = await this.userEntity.findOne({
@@ -79,12 +80,11 @@ export class UserService {
     await this.userEntity.update(user.index, editInfo);
     return true;
   }
-  async userWithdraw(withdrawInfo: UserWithdrawDto) {
+  /**회원 탈퇴**/
+  async userWithdraw(request: Request) {
     const user = await this.userEntity.findOne({
       where: {
-        username: withdrawInfo.username,
-        id: withdrawInfo.id,
-        pw: withdrawInfo.pw,
+        index: request['user'].index,
       },
     });
     if (!user)
@@ -98,10 +98,10 @@ export class UserService {
     await this.userEntity.delete(user);
     return true;
   }
+  /**Refresh Token 검토**/
   async refreshToken(refresh: string) {
     const secretR = 'asdf';
     const secretA = 'qwer';
-    /**Refresh Token 검토**/
     let newpayload;
     try {
       const payload = await this.jwtService.verifyAsync(refresh, {
