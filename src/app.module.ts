@@ -10,24 +10,26 @@ import { UserController } from './user/user.controller';
 import { BoardController } from './board/board.controller';
 import { UserService } from './user/user.service';
 import { BoardService } from './board/board.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
+      host: '113.198.230.24',
+      port: 382,
+      username: 'jaerock',
       password: 'power01',
-      database: 'jaerock',
+      database: 'board',
       entities: [BoardEntity, UserEntity], //전체
       synchronize: true,
     }),
     BoardModule,
     UserModule,
+    JwtModule,
   ],
   controllers: [AppController, UserController, BoardController],
   providers: [AppService, UserService, BoardService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, JwtModule],
 })
 export class AppModule {}
