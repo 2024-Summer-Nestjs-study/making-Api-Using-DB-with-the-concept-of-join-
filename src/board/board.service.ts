@@ -7,16 +7,18 @@ import { UserEntity } from '../entity/user.entity';
 import { BoardReadUserReqDto } from './dto/req/board.read.user.req.dto';
 import { BoardEditReqDto } from './dto/req/board.edit.req.dto';
 import { BoardDeleteReqDto } from './dto/req/board.delete.req.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BoardService {
   constructor(
     @InjectRepository(BoardEntity)
     private readonly boardEntity: Repository<BoardEntity>,
+    private jwtService: JwtService,
   ) {}
-  async boardWrite(writeInfo: BoardWriteReqDto) {
+  async boardWrite(writeInfo: BoardWriteReqDto, request: Request) {
     const user = new UserEntity();
-    user.index = writeInfo.userIndex;
+    user.index = request['user'].index;
     const board = new BoardEntity();
     board.user = user;
     board.title = writeInfo.title;
