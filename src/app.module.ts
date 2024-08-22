@@ -11,16 +11,21 @@ import { BoardController } from './board/board.controller';
 import { UserService } from './user/user.service';
 import { BoardService } from './board/board.service';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import * as process from 'node:process';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '113.198.230.24',
-      port: 382,
-      username: 'jaerock',
-      password: 'power01',
-      database: 'board',
+      type: 'mariadb',
+      host: process.env.DB_IP,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PW,
+      database: process.env.DB_NAME,
       entities: [BoardEntity, UserEntity], //전체
       synchronize: true,
     }),
