@@ -1,10 +1,4 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entity/user.entity';
 import { Repository } from 'typeorm';
@@ -66,7 +60,10 @@ export class UserService {
       secret: secretA,
       expiresIn: '100s',
     });
-    return [access, refresh];
+    return {
+      access,
+      refresh,
+    };
   }
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
@@ -124,6 +121,8 @@ export class UserService {
       secret: secretA,
       expiresIn: '100s',
     });
-    return newAccess;
+    return {
+      access: newAccess,
+    };
   }
 }
