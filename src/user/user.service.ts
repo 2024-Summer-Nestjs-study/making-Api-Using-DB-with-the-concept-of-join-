@@ -13,6 +13,7 @@ import { UserLoginReqDto } from './dto/req/user.login.req.dto';
 import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { BoardEntity } from '../entity/board.entity';
 import { JwtService } from '@nestjs/jwt';
+import * as process from 'node:process';
 
 @Injectable()
 export class UserService {
@@ -55,8 +56,8 @@ export class UserService {
       index: user.index.toString(),
     };
     //access 토큰 및 refresh 토근 발급
-    const secretA = 'qwer';
-    const secretR = 'asdf';
+    const secretA = process.env.ACCESS;
+    const secretR = process.env.REFRESH;
     const refresh = this.jwtService.sign(payload, {
       secret: secretR,
       expiresIn: '10m',
@@ -100,8 +101,8 @@ export class UserService {
   }
   /**Refresh Token 검토**/
   async refreshToken(refresh: string) {
-    const secretR = 'asdf';
-    const secretA = 'qwer';
+    const secretR = process.env.REFRESH;
+    const secretA = process.env.ACCESS;
     let newpayload;
     try {
       const payload = await this.jwtService.verifyAsync(refresh, {
