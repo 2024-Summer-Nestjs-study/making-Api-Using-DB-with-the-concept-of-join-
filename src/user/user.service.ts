@@ -8,6 +8,7 @@ import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { BoardEntity } from '../entity/board.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'node:process';
+import { UserRefreshReqDto } from './dto/req/user.refresh.req.dto';
 
 @Injectable()
 export class UserService {
@@ -97,12 +98,12 @@ export class UserService {
     return true;
   }
   /**Refresh Token 검토**/
-  async refreshToken(refresh: string) {
+  async refreshToken(refresh: UserRefreshReqDto) {
     const secretR = process.env.REFRESH;
     const secretA = process.env.ACCESS;
     let newpayload;
     try {
-      const payload = await this.jwtService.verifyAsync(refresh, {
+      const payload = await this.jwtService.verifyAsync(refresh.refresh, {
         secret: secretR,
       });
       newpayload = {

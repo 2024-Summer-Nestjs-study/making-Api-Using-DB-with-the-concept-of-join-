@@ -15,8 +15,10 @@ import { BoardReadUserReqDto } from './dto/req/board.read.user.req.dto';
 import { BoardEditReqDto } from './dto/req/board.edit.req.dto';
 import { BoardDeleteReqDto } from './dto/req/board.delete.req.dto';
 import { JwtGuard } from '../jwt/jwt.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('board')
+@ApiTags('게시판 API')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
   @UseGuards(JwtGuard)

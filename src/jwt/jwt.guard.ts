@@ -13,7 +13,7 @@ export class JwtGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const accessToken = request.headers.authorization;
+    const accessToken = request.headers.authorization.replace('Bearer ', '');
     if (!accessToken) {
       console.log('헤더 빔');
       throw new UnauthorizedException();
@@ -21,7 +21,7 @@ export class JwtGuard implements CanActivate {
     const secretA = process.env.ACCESS;
     /**Acess Token 검토**/
     try {
-      const payload = await this.jwtService.verifyAsync(accessToken, {
+      const payload = await this.jwtService.verifyAsync(accessToken[1], {
         secret: secretA,
       });
       request['user'] = payload;
