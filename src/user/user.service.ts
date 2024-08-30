@@ -1,4 +1,9 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entity/user.entity';
 import { Repository } from 'typeorm';
@@ -46,7 +51,7 @@ export class UserService {
         pw: loginInfo.pw,
       },
     });
-    if (!user) throw new HttpException('로그인 실패', HttpStatus.BAD_REQUEST);
+    if (!user) throw new BadRequestException('로그인 실패');
     const payload = {
       index: user.index.toString(),
     };
@@ -74,8 +79,7 @@ export class UserService {
         index: request['user'].index,
       },
     });
-    if (!user)
-      throw new HttpException('회원 정보 수정 실패', HttpStatus.BAD_REQUEST);
+    if (!user) throw new BadRequestException('회원 정보 수정 실패');
     await this.userEntity.update(user.index, editInfo);
     return true;
   }
@@ -86,8 +90,7 @@ export class UserService {
         index: request['user'].index,
       },
     });
-    if (!user)
-      throw new HttpException('회원 정보 삭제 실패', HttpStatus.BAD_REQUEST);
+    if (!user) throw new BadRequestException('회원 정보 삭제 실패');
     const boards = await this.boardEntity
       .createQueryBuilder('board_entity')
       .delete()

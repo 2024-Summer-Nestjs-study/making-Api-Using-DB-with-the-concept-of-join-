@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardEntity } from '../entity/board.entity';
 import { Repository } from 'typeorm';
@@ -45,10 +45,7 @@ export class BoardService {
       },
     });
     if (!board[0])
-      throw new HttpException(
-        '해당 회원이 게시한 게시글이 없습니다.',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException('해당 회원이 게시한 게시글이 없습니다.');
     return board;
   }
 
@@ -61,11 +58,7 @@ export class BoardService {
         index: editInfo.index,
       },
     });
-    if (!board)
-      throw new HttpException(
-        '수정 할 게시글이 없습니다.',
-        HttpStatus.NOT_FOUND,
-      );
+    if (!board) throw new NotFoundException('수정 할 게시글이 없습니다.');
     await this.boardEntity.update(board, editInfo);
     return true;
   }
@@ -80,11 +73,7 @@ export class BoardService {
       },
     });
 
-    if (!board)
-      throw new HttpException(
-        '삭제 할 게시글이 없습니다.',
-        HttpStatus.NOT_FOUND,
-      );
+    if (!board) throw new NotFoundException('삭제 할 게시글이 없습니다.');
     await this.boardEntity.delete(board);
     return true;
   }
