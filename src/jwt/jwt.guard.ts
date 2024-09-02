@@ -13,7 +13,7 @@ export class JwtGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const accessToken = request.headers.authorization.replace('Bearer ', '');
+    const accessToken = request.headers.authorization.split(' ');
     if (!accessToken) {
       console.log('헤더 빔');
       throw new UnauthorizedException();
