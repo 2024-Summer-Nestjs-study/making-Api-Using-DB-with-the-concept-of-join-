@@ -40,7 +40,6 @@ export class UserService {
   }
   /**로그인**/
   async userLogin(loginInfo: UserLoginReqDto) {
-    //중복 체크
     const user = await this.userEntity.findOne({
       select: {
         index: true,
@@ -73,14 +72,19 @@ export class UserService {
   }
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
-    console.log(request['user'].index);
     const user = await this.userEntity.findOne({
       where: {
         index: request['user'].index,
       },
     });
     if (!user) throw new BadRequestException('회원 정보 수정 실패');
-    await this.userEntity.update(user.index, editInfo);
+    try {
+      await this.userEntity.update(user.index, editInfo);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('중복된 아이디가 있습니다.');
+      }
+    }
     return true;
   }
   /**회원 탈퇴**/

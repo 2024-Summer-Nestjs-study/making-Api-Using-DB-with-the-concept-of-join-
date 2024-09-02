@@ -33,7 +33,6 @@ export class UserController {
   async userRegister(@Body() userInfo: UserRegisterReqDto) {
     return this.userService.userRegister(userInfo);
   }
-
   @ApiOperation({ summary: '로그인' })
   @Post('login')
   async userLogin(@Body() loginInfo: UserLoginReqDto) {
