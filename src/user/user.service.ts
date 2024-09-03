@@ -76,13 +76,20 @@ export class UserService {
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
     const user = await this.userEntity.findOne({
+      select: {
+        index: true,
+      },
       where: {
         index: request['user'].index,
       },
     });
-    if (!user) throw new BadRequestException('회원 정보 수정 실패');
+    if (!user) throw new BadRequestException('로그인 후 이용해 주세요');
+    const updateInfo = new UserEntity();
+    updateInfo.pw = await bcrypt.hash(editInfo.pw, 10);
+    updateInfo.id = editInfo.id;
+    updateInfo.username = editInfo.username;
     try {
-      await this.userEntity.update(user.index, editInfo);
+      await this.userEntity.update(user, updateInfo);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new ConflictException('중복된 아이디가 있습니다.');
