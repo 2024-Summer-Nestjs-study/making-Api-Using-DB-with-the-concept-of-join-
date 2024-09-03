@@ -13,24 +13,24 @@ export class JwtGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const accessToken = request.headers.authorization.split(' ');
+    const accessToken = request.headers.authorization;
     if (!accessToken) {
-      console.log('헤더 빔');
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token이 없습니다.');
     }
+    const splitToken = request.headers.authorization.split(' ');
     const secretA = process.env.ACCESS;
     /**Acess Token 검토**/
     try {
-      const payload = await this.jwtService.verifyAsync(accessToken[1], {
+      const payload = await this.jwtService.verifyAsync(splitToken[1], {
         secret: secretA,
       });
       request['user'] = payload;
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
-        throw new UnauthorizedException('access만료');
+        throw new UnauthorizedException('Token 만료');
       }
       if (e.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException('Token이 맞아?');
+        throw new UnauthorizedException('Token이 아닙니다');
       }
     }
     return true;
