@@ -15,6 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as process from 'node:process';
 import * as bcrypt from 'bcrypt';
 import { UserRefreshReqDto } from './dto/req/user.refresh.req.dto';
+import { UserWithdrawReqDto } from './dto/req/user.withdraw.req.dto';
 
 @Injectable()
 export class UserService {
@@ -98,7 +99,10 @@ export class UserService {
     return true;
   }
   /**회원 탈퇴**/
-  async userWithdraw(request: Request) {
+  async userWithdraw(accept: UserWithdrawReqDto, request: Request) {
+    if (accept.accept !== '동의합니다') {
+      throw new BadRequestException('메세지를 올바르게 입력해주세요');
+    }
     const user = await this.userEntity.findOne({
       where: {
         index: request['user'].index,
@@ -110,7 +114,6 @@ export class UserService {
       .delete()
       .where('userIndex = :userIndex', { userIndex: user.index })
       .execute();
-    console.log(boards);
     await this.userEntity.delete(user);
     return true;
   }
@@ -131,7 +134,7 @@ export class UserService {
         throw new UnauthorizedException('다시 로그인 하세요');
       }
       if (e.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException('Token이 맞아?');
+        throw new UnauthorizedException('Token이 아닙니다');
       }
     }
     /**새로운 Access Token 발행**/

@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserRefreshReqDto } from './dto/req/user.refresh.req.dto';
+import { UserWithdrawReqDto } from './dto/req/user.withdraw.req.dto';
 
 @Controller('user')
 @ApiTags('유저 API')
@@ -52,8 +53,11 @@ export class UserController {
   @ApiBearerAuth('authorization')
   @ApiOperation({ summary: '회원 탈퇴' })
   @Delete('withdraw')
-  async userWithdraw(@Request() request: Request) {
-    return this.userService.userWithdraw(request);
+  async userWithdraw(
+    @Body() accept: UserWithdrawReqDto,
+    @Request() request: Request,
+  ) {
+    return this.userService.userWithdraw(accept, request);
   }
   @Post('refresh')
   async refreshToken(@Body() refresh: UserRefreshReqDto) {
