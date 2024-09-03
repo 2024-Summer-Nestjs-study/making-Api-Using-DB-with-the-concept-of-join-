@@ -45,13 +45,15 @@ export class UserService {
       select: {
         index: true,
         username: true,
+        pw: true,
       },
       where: {
         id: loginInfo.id,
-        pw: loginInfo.pw,
       },
     });
-    if (!user) throw new BadRequestException('로그인 실패');
+    if (!user) throw new BadRequestException('맞지 않는 ID입니다');
+    const comparePw = await bcrypt.compare(loginInfo.pw, user.pw);
+    if (!comparePw) throw new BadRequestException('맞지 않는 PW입니다');
     const payload = {
       index: user.index.toString(),
     };
