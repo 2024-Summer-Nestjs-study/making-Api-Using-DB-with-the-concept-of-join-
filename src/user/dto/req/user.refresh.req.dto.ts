@@ -5,5 +5,5 @@ export class UserRefreshReqDto {
   @ApiProperty({ description: 'refresh토큰' })
   @IsString()
   @IsNotEmpty()
-  refresh: string;
+  token: string;
 }

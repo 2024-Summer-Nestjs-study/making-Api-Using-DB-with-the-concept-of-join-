@@ -120,7 +120,7 @@ export class UserService {
     const secretA = process.env.ACCESS;
     let newpayload;
     try {
-      const payload = await this.jwtService.verifyAsync(refresh.refresh, {
+      const payload = await this.jwtService.verifyAsync(refresh.token, {
         secret: secretR,
       });
       newpayload = {
