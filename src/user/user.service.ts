@@ -13,6 +13,7 @@ import { UserEditReqDto } from './dto/req/user.edit.req.dto';
 import { BoardEntity } from '../entity/board.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'node:process';
+import * as bcrypt from 'bcrypt';
 import { UserRefreshReqDto } from './dto/req/user.refresh.req.dto';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class UserService {
     const user = new UserEntity();
     user.username = userInfo.username;
     user.id = userInfo.id;
-    user.pw = userInfo.pw;
+    user.pw = await bcrypt.hash(userInfo.pw, 10);
     try {
       await this.userEntity.save(user);
     } catch (error) {
