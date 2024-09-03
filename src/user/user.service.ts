@@ -16,6 +16,7 @@ import * as process from 'node:process';
 import * as bcrypt from 'bcrypt';
 import { UserRefreshReqDto } from './dto/req/user.refresh.req.dto';
 import { UserWithdrawReqDto } from './dto/req/user.withdraw.req.dto';
+import { UserLoginResponseDto } from './dto/res/user.login.response.dto';
 
 @Injectable()
 export class UserService {
@@ -69,10 +70,10 @@ export class UserService {
       secret: secretA,
       expiresIn: '100s',
     });
-    return {
-      access,
-      refresh,
-    };
+    const token = new UserLoginResponseDto();
+    token.token1 = access;
+    token.token2 = refresh;
+    return token;
   }
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
