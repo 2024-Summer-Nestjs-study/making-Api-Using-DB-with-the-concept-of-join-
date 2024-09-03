@@ -49,13 +49,16 @@ export class BoardService {
     return board;
   }
 
-  async boardEdit(editInfo: BoardEditReqDto) {
+  async boardEdit(editInfo: BoardEditReqDto, request: Request) {
     const board = await this.boardEntity.findOne({
       select: {
         index: true,
       },
       where: {
         index: editInfo.index,
+        user: {
+          index: request['user'].index,
+        },
       },
     });
     if (!board) throw new NotFoundException('수정 할 게시글이 없습니다.');
@@ -63,13 +66,16 @@ export class BoardService {
     return true;
   }
 
-  async boardDelete(deleteInfo: BoardDeleteReqDto) {
+  async boardDelete(deleteInfo: BoardDeleteReqDto, request: Request) {
     const board = await this.boardEntity.findOne({
       select: {
         index: true,
       },
       where: {
         index: deleteInfo.index,
+        user: {
+          index: request['user'].index,
+        },
       },
     });
 
