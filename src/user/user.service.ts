@@ -40,6 +40,9 @@ export class UserService {
         throw new ConflictException('중복된 아이디가 있습니다.');
       }
     }
+    return {
+      message: `${user.username}님 회원가입 되었습니다`,
+    };
   }
   /**로그인**/
   async userLogin(loginInfo: UserLoginReqDto) {
@@ -70,10 +73,11 @@ export class UserService {
       secret: secretA,
       expiresIn: '100s',
     });
-    const token = new UserLoginResponseDto();
-    token.token1 = access;
-    token.token2 = refresh;
-    return token;
+    const userLoginResponseDto = new UserLoginResponseDto();
+    userLoginResponseDto.message = `${user.username}님 환영합니다.`;
+    userLoginResponseDto.token1 = access;
+    userLoginResponseDto.token2 = refresh;
+    return userLoginResponseDto;
   }
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
