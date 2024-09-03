@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardEntity } from '../entity/board.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BoardService {
+  private readonly logger = new Logger(BoardService.name);
   constructor(
     @InjectRepository(BoardEntity)
     private readonly boardEntity: Repository<BoardEntity>,
@@ -26,6 +27,7 @@ export class BoardService {
     if (await this.boardEntity.save(board)) {
       return true;
     }
+    this.logger.error('작성 되지 않음');
     return false;
   }
   async boardReadByUserIndex(readInfo: BoardReadUserReqDto) {
@@ -44,8 +46,10 @@ export class BoardService {
         },
       },
     });
-    if (!board[0])
+    if (!board[0]) {
+      this.logger.error('게시한 게시글이 없음');
       throw new NotFoundException('해당 회원이 게시한 게시글이 없습니다.');
+    }
     return board;
   }
 
@@ -61,7 +65,10 @@ export class BoardService {
         },
       },
     });
-    if (!board) throw new NotFoundException('수정 할 게시글이 없습니다.');
+    if (!board) {
+      this.logger.error('수정 할 게시글을 찾지 못함');
+      throw new NotFoundException('수정 할 게시글이 없습니다.');
+    }
     await this.boardEntity.update(board, editInfo);
     return true;
   }
@@ -79,7 +86,10 @@ export class BoardService {
       },
     });
 
-    if (!board) throw new NotFoundException('삭제 할 게시글이 없습니다.');
+    if (!board) {
+      this.logger.error('삭제할 게시글을 찾지 못함');
+      throw new NotFoundException('삭제 할 게시글이 없습니다.');
+    }
     await this.boardEntity.delete(board);
     return true;
   }

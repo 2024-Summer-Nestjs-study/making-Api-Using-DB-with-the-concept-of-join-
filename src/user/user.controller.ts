@@ -6,6 +6,7 @@ import {
   Post,
   UseGuards,
   Request,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRegisterReqDto } from './dto/req/user.register.req.dto';
@@ -24,6 +25,7 @@ import { UserWithdrawReqDto } from './dto/req/user.withdraw.req.dto';
 @Controller('user')
 @ApiTags('유저 API')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
   @ApiOperation({ summary: '회원가입' })
   @ApiResponse({
@@ -40,6 +42,7 @@ export class UserController {
   })
   @Post('register')
   async userRegister(@Body() userInfo: UserRegisterReqDto) {
+    this.logger.log('register 메소드 진입');
     return this.userService.userRegister(userInfo);
   }
   @ApiOperation({ summary: '로그인' })
@@ -53,6 +56,7 @@ export class UserController {
   })
   @Post('login')
   async userLogin(@Body() loginInfo: UserLoginReqDto) {
+    this.logger.log('login 메소드 진입');
     return this.userService.userLogin(loginInfo);
   }
   @UseGuards(JwtGuard)
@@ -79,6 +83,7 @@ export class UserController {
     @Body() editInfo: UserEditReqDto,
     @Request() request: Request,
   ) {
+    this.logger.log('edit 메소드 진입');
     return this.userService.userEdit(editInfo, request);
   }
   @UseGuards(JwtGuard)
@@ -101,11 +106,21 @@ export class UserController {
     @Body() accept: UserWithdrawReqDto,
     @Request() request: Request,
   ) {
+    this.logger.log('withdraw 메소드 진입');
     return this.userService.userWithdraw(accept, request);
   }
   @ApiOperation({ summary: 'access토큰 재발급' })
+  @ApiResponse({
+    status: 201,
+    description: 'access토큰 재발급',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효한 토큰이지 않거나 토큰이 전달 되지 않았음',
+  })
   @Post('refresh')
   async refreshToken(@Body() refresh: UserRefreshReqDto) {
+    this.logger.log('refresh 메소드 진입');
     return this.userService.refreshToken(refresh);
   }
 }

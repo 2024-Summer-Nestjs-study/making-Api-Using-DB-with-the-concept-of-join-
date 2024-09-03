@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Patch,
   Post,
   Query,
@@ -25,6 +26,7 @@ import {
 @Controller('board')
 @ApiTags('게시판 API')
 export class BoardController {
+  private readonly logger = new Logger(BoardController.name);
   constructor(private readonly boardService: BoardService) {}
   @ApiOperation({ summary: '게시글 작성' })
   @ApiBearerAuth('authorization')
@@ -46,6 +48,7 @@ export class BoardController {
     @Body() writeInfo: BoardWriteReqDto,
     @Request() request: Request,
   ) {
+    this.logger.log('write 메소드 진입');
     return this.boardService.boardWrite(writeInfo, request);
   }
   @ApiOperation({ summary: '게시글 불러오기' })
@@ -63,6 +66,7 @@ export class BoardController {
     description: '입력된 정보로 게시물을 찾지 못함',
   })
   async boardReadByUserIndex(@Query() readInfo: BoardReadUserReqDto) {
+    this.logger.log('read 메소드 진입');
     return this.boardService.boardReadByUserIndex(readInfo);
   }
   @ApiOperation({ summary: '게시글 수정' })
@@ -89,6 +93,7 @@ export class BoardController {
     @Body() editInfo: BoardEditReqDto,
     @Request() request: Request,
   ) {
+    this.logger.log('edit 메소드 진입');
     return this.boardService.boardEdit(editInfo, request);
   }
   @ApiOperation({ summary: '게시글 삭제' })
@@ -115,6 +120,7 @@ export class BoardController {
     @Query() deleteInfo: BoardDeleteReqDto,
     @Request() request: Request,
   ) {
+    this.logger.log('delete 메소드 진입');
     return this.boardService.boardDelete(deleteInfo, request);
   }
 }

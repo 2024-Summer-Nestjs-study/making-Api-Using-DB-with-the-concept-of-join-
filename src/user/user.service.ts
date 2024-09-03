@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,6 +21,7 @@ import { UserLoginResponseDto } from './dto/res/user.login.response.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(UserEntity)
     private readonly userEntity: Repository<UserEntity>,
@@ -34,9 +36,11 @@ export class UserService {
     user.id = userInfo.id;
     user.pw = await bcrypt.hash(userInfo.pw, 10);
     try {
+      this.logger.debug('회원정보 저장');
       await this.userEntity.save(user);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
+        this.logger.error('register 중복된 아이디');
         throw new ConflictException('중복된 아이디가 있습니다.');
       }
     }
@@ -46,6 +50,7 @@ export class UserService {
   }
   /**로그인**/
   async userLogin(loginInfo: UserLoginReqDto) {
+    this.logger.debug('회원정보 찾기 ID');
     const user = await this.userEntity.findOne({
       select: {
         index: true,
@@ -56,9 +61,16 @@ export class UserService {
         id: loginInfo.id,
       },
     });
-    if (!user) throw new BadRequestException('맞지 않는 ID입니다');
+    if (!user) {
+      this.logger.error('ID 회원정보 없음');
+      throw new BadRequestException('맞지 않는 ID입니다');
+    }
+    this.logger.debug('회원정보 찾기 PW');
     const comparePw = await bcrypt.compare(loginInfo.pw, user.pw);
-    if (!comparePw) throw new BadRequestException('맞지 않는 PW입니다');
+    if (!comparePw) {
+      this.logger.error('PW 회원정보 없음');
+      throw new BadRequestException('맞지 않는 PW입니다');
+    }
     const payload = {
       index: user.index.toString(),
     };
@@ -81,6 +93,7 @@ export class UserService {
   }
   /**회원 정보 수정**/
   async userEdit(editInfo: UserEditReqDto, request: Request) {
+    this.logger.debug('수정할 회원정보 찾기');
     const user = await this.userEntity.findOne({
       select: {
         index: true,
@@ -89,15 +102,20 @@ export class UserService {
         index: request['user'].index,
       },
     });
-    if (!user) throw new BadRequestException('로그인 후 이용해 주세요');
+    if (!user) {
+      this.logger.error('회원정보 없음');
+      throw new BadRequestException('로그인 후 이용해 주세요');
+    }
     const updateInfo = new UserEntity();
     updateInfo.pw = await bcrypt.hash(editInfo.pw, 10);
     updateInfo.id = editInfo.id;
     updateInfo.username = editInfo.username;
+    this.logger.debug('회원정보 수정');
     try {
       await this.userEntity.update(user, updateInfo);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
+        this.logger.error('중복된 아이디 존재');
         throw new ConflictException('중복된 아이디가 있습니다.');
       }
     }
@@ -106,6 +124,7 @@ export class UserService {
   /**회원 탈퇴**/
   async userWithdraw(accept: UserWithdrawReqDto, request: Request) {
     if (accept.accept !== '동의합니다') {
+      this.logger.error('메세지 일치 하지 않음');
       throw new BadRequestException('메세지를 올바르게 입력해주세요');
     }
     const user = await this.userEntity.findOne({
@@ -113,7 +132,10 @@ export class UserService {
         index: request['user'].index,
       },
     });
-    if (!user) throw new BadRequestException('회원 정보 삭제 실패');
+    if (!user) {
+      this.logger.error('회원정보 삭제 실패');
+      throw new BadRequestException('회원 정보 삭제 실패');
+    }
     const boards = await this.boardEntity
       .createQueryBuilder('board_entity')
       .delete()
@@ -136,9 +158,11 @@ export class UserService {
       };
     } catch (e) {
       if (e.name === 'TokenExpiredError') {
+        this.logger.error('토큰 시간 만료');
         throw new UnauthorizedException('다시 로그인 하세요');
       }
       if (e.name === 'JsonWebTokenError') {
+        this.logger.debug('토큰이 아님');
         throw new UnauthorizedException('Token이 아닙니다');
       }
     }
